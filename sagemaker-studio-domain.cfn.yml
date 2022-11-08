@@ -1,19 +1,27 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudFormation Templates for provisioning sage maker studio and domain
+Description: SageMaker Studio domain
 Parameters:
-  S3Bucket:
+  ProjectName:
+    Description: Set the project name.
     Type: String
-    Description: Set S3 Bucket.
-    Default: test-studio-cf
-  UserProfileName:
-    Type: String
-    Description: Set user profile name.
-    Default: DefaultUser
+    Default: mllab
   VpcStackName:
     Description: Set the VPC stack name.
     Type: String
     Default: vpc-private-subnets-and-endpoint-for-s3
+  S3StackName:
+    Description: Set the S3 stack name.
+    Type: String
+    Default: s3-bucket-for-sagemaker
+  UserProfileName:
+    Description: Set user profile name.
+    Type: String
+    Default: DefaultUser
+  SageMakerRuntime:
+    Description: Set a SageMaker runtime.
+    Type: String
+    Default: python3.9
 Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -85,9 +93,10 @@ Resources:
       Handler: domain_function.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
-        S3Bucket: !Ref S3Bucket
+        S3Bucket:
+          Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
         S3Key: domain_function.zip
-      Runtime: python3.8
+      Runtime: !Ref SageMakerRuntime
       Timeout: 900
       Layers:
         - !Ref CfnResponseLayer
@@ -95,21 +104,23 @@ Resources:
     Type: AWS::Lambda::LayerVersion
     Properties:
       CompatibleRuntimes:
-        - python3.8
+        - !Ref SageMakerRuntime
       Content:
-        S3Bucket: !Ref S3Bucket
+        S3Bucket:
+          Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
         S3Key: cfnResponse_layer.zip
       Description: cfn_response layer
-      LayerName: cfn-response
+      LayerName: !Sub ${ProjectName}-cfn-response
   UserProfileFunction:
     Type: AWS::Lambda::Function
     Properties:
       Handler: UserProfile_function.lambda_handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
-        S3Bucket: !Ref S3Bucket
+        S3Bucket:
+          Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
         S3Key: UserProfile_function.zip
-      Runtime: python3.8
+      Runtime: !Ref SageMakerRuntime
       Timeout: 900
       Layers:
         - !Ref CfnResponseLayer
@@ -123,7 +134,7 @@ Resources:
         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet1
         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet2
-      DomainName: MyDomainName
+      DomainName: !Sub ${ProjectName}-sagemaker-studio-domain
       DefaultUserSettings:
         ExecutionRole: !GetAtt SageMakerExecutionRole.Arn
   UserProfile:

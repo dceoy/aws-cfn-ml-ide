@@ -11,26 +11,49 @@ Installation
 1.  Check out the repository.
 
     ```sh
-    $ git clone git@github.com:dceoy/aws-cfn-ml-lab.git
+    $ git clone --recurse-submodules git@github.com:dceoy/aws-cfn-ml-lab.git
     $ cd aws-cfn-ml-lab
     ```
 
-2.  Install [Rain](https://github.com/aws-cloudformation/rain) and set `~/.aws/config` and `~/.aws/credentials`.
+2.  Install [Rain](https://github.com/aws-cloudformation/rain) and [AWS CLI](https://aws.amazon.com/cli/), and set `~/.aws/config` and `~/.aws/credentials`.
 
-3.  Deploy VPC stacks for private subnets and a VPC endpoint.
+3.  Deploy stacks of VPC private subnets and a VPC endpoint for S3.
 
     ```sh
-    $ rain deploy vpc-private-subnets-and-s3-endpoint.cfn.yml vpc-private-subnets-and-s3-endpoint
+    $ rain deploy \
+        --params ProjectName=mllab-dev \
+        aws-cfn-vpc-for-slc/vpc-private-subnets-and-s3-endpoint.cfn.yml \
+        mllab-dev-vpc-private
     ```
 
-4.  Deploy VPC stacks for public subnets and a NAT gateway for internet access. (optional)
+4.  Deploy a S3 stack.
 
     ```sh
-    $ rain deploy vpc-public-subnets-and-nat-gateway.cfn.yml vpc-public-subnets-and-nat-gateway
+    $ rain deploy \
+        --params ProjectName=mllab-dev \
+         s3-bucket-for-sagemaker.cfn.yml \
+         mllab-dev-sagemaker-s3
+    $ curl -SL https://github.com/aws-samples/cloudformation-studio-domain/archive/refs/heads/main.tar.gz \
+        | tar zxvf -
+    $ aws s3 sync --exclude='*' --include='*.zip' \
+        ./cloudformation-studio-domain-main/  \
+        "s3://mllab-dev-sagemaker-$(aws sts get-caller-identity | jq -r .Account)/"
     ```
 
-5.  Deploy stacks for SageMaker Studio.
+5.  Deploy stacks of SageMaker Studio.
 
     ```sh
-    $ rain deploy sagemaker-studio-domain.cfn.yml sagemaker-studio-domain
+    $ rain deploy \
+        --params ProjectName=mllab-dev,VpcStackName=mllab-dev-vpc-private,S3StackName=mllab-dev-sagemaker-s3 \
+        sagemaker-studio-domain.cfn.yml \
+        mllab-dev-sagemaker-studio-domain
+    ```
+
+6.  Deploy stacks of VPC public subnets and a Nat gateway for internet access. (optional)
+
+    ```sh
+    $ rain deploy \
+        --params VpcStackName=mllab-dev-vpc-private,ProjectName=mllab-dev \
+        aws-cfn-vpc-for-slc/vpc-public-subnets-and-nat-gateway.cfn.yml \
+        mllab-dev-vpc-public
     ```

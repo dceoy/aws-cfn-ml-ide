@@ -10,14 +10,10 @@ Parameters:
     Type: String
     Description: Set user profile name.
     Default: DefaultUser
-  VPCId:
+  VpcStackName:
+    Description: Set the VPC stack name.
     Type: String
-    Description: Set VPC Id.
-    Default: vpc-xxxxxx
-  SubnetIds:
-    Type: String
-    Description: Set Subnet Ids.
-    Default: subnet-xxxxx
+    Default: vpc-private-subnets-and-endpoint-for-s3
 Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -121,8 +117,12 @@ Resources:
     Type: Custom::StudioDomain
     Properties:
       ServiceToken: !GetAtt StudioDomainFunction.Arn
-      VPC: !Ref VPCId
-      SubnetIds: !Ref SubnetIds
+      VPC:
+        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
+      SubnetIds:
+        - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
+        - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet1
+        - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet2
       DomainName: MyDomainName
       DefaultUserSettings:
         ExecutionRole: !GetAtt SageMakerExecutionRole.Arn

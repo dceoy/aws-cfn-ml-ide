@@ -1,0 +1,297 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: SageMaker Studio domain
+Parameters:
+  ProjectName:
+    Description: Set the project name.
+    Type: String
+    Default: mllab
+  S3StackName:
+    Description: Set the S3 stack name.
+    Type: String
+    Default: s3-bucket-for-sagemaker
+Resources:
+  SageMakerExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-SageMakerExecutionRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - sagemaker.amazonaws.com
+            Action:
+              - sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
+        - arn:aws:iam::aws:policy/AmazonSageMakerCanvasFullAccess
+        - arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-SageMakerS3Bucket-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                Resource:
+                  Fn::Join:
+                    - ''
+                    - - 'arn:aws:s3:::'
+                      - Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  Fn::Join:
+                    - ''
+                    - - 'arn:aws:s3:::'
+                      - Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
+                      - /*
+        - PolicyName: !Sub ${ProjectName}-SageMakerStudioImageBuild-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - codebuild:DeleteProject
+                  - codebuild:CreateProject
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                Resource:
+                  - arn:aws:codebuild:*:*:project/sagemaker-studio*
+              - Effect: Allow
+                Action: logs:CreateLogStream
+                Resource:
+                  - arn:aws:logs:*:*:log-group:/aws/codebuild/sagemaker-studio*
+              - Effect: Allow
+                Action:
+                  - logs:GetLogEvents
+                  - logs:PutLogEvents
+                Resource:
+                  - arn:aws:logs:*:*:log-group:/aws/codebuild/sagemaker-studio*:log-stream:*
+              - Effect: Allow
+                Action: logs:CreateLogGroup
+                Resource:
+                  - '*'
+              - Effect: Allow
+                Action:
+                  - ecr:CreateRepository
+                  - ecr:BatchGetImage
+                  - ecr:CompleteLayerUpload
+                  - ecr:DescribeImages
+                  - ecr:DescribeRepositories
+                  - ecr:UploadLayerPart
+                  - ecr:ListImages
+                  - ecr:InitiateLayerUpload
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:PutImage
+                Resource:
+                  - arn:aws:ecr:*:*:repository/sagemaker-studio*
+              - Sid: ReadAccessToPrebuiltAwsImages
+                Effect: Allow
+                Action:
+                  - ecr:BatchGetImage
+                  - ecr:GetDownloadUrlForLayer
+                Resource:
+                  - arn:aws:ecr:*:763104351884:repository/*
+                  - arn:aws:ecr:*:217643126080:repository/*
+                  - arn:aws:ecr:*:727897471807:repository/*
+                  - arn:aws:ecr:*:626614931356:repository/*
+                  - arn:aws:ecr:*:683313688378:repository/*
+                  - arn:aws:ecr:*:520713654638:repository/*
+                  - arn:aws:ecr:*:462105765813:repository/*
+              - Sid: EcrAuthorizationTokenRetrieval
+                Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                Resource:
+                  - '*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:DeleteObject
+                  - s3:PutObject
+                Resource:
+                  - arn:aws:s3:::sagemaker-*/*
+              - Effect: Allow
+                Action:
+                  - s3:CreateBucket
+                Resource:
+                  - arn:aws:s3:::sagemaker*
+              - Effect: Allow
+                Action:
+                  - iam:GetRole
+                  - iam:ListRoles
+                Resource:
+                  - '*'
+              - Effect: Allow
+                Action: iam:PassRole
+                Resource:
+                  - arn:aws:iam::*:role/*
+                Condition:
+                  StringLikeIfExists:
+                    iam:PassedToService: codebuild.amazonaws.com
+              - Sid: VpcAccessActions
+                Effect: Allow
+                Action:
+                  - ec2:CreateNetworkInterface
+                  - ec2:CreateNetworkInterfacePermission
+                  - ec2:DescribeDhcpOptions
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DeleteNetworkInterface
+                  - ec2:DescribeSubnets
+                  - ec2:DescribeSecurityGroups
+                  - ec2:DescribeVpcs
+                Resource:
+                  - '*'
+  SageMakerCanvasForecastRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-SageMakerCanvasForecastRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - forecast.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonSageMakerCanvasForecastAccess
+  StepFunctionsWorkflowExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-StepFunctionsWorkflowExecutionRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - states.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchEventsFullAccess
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-StepFunctionsWorkflowExecution-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sagemaker:CreateTransformJob
+                  - sagemaker:DescribeTransformJob
+                  - sagemaker:StopTransformJob
+                  - sagemaker:CreateTrainingJob
+                  - sagemaker:DescribeTrainingJob
+                  - sagemaker:StopTrainingJob
+                  - sagemaker:CreateHyperParameterTuningJob
+                  - sagemaker:DescribeHyperParameterTuningJob
+                  - sagemaker:StopHyperParameterTuningJob
+                  - sagemaker:CreateModel
+                  - sagemaker:CreateEndpointConfig
+                  - sagemaker:CreateEndpoint
+                  - sagemaker:DeleteEndpointConfig
+                  - sagemaker:DeleteEndpoint
+                  - sagemaker:UpdateEndpoint
+                  - sagemaker:ListTags
+                  - lambda:InvokeFunction
+                  - sqs:SendMessage
+                  - sns:Publish
+                  - ecs:RunTask
+                  - ecs:StopTask
+                  - ecs:DescribeTasks
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - batch:SubmitJob
+                  - batch:DescribeJobs
+                  - batch:TerminateJob
+                  - glue:StartJobRun
+                  - glue:GetJobRun
+                  - glue:GetJobRuns
+                  - glue:BatchStopJobRun
+                Resource:
+                  - '*'
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource:
+                  - !GetAtt SageMakerExecutionRole.Arn
+                Condition:
+                  StringEquals:
+                    iam:PassedToService: sagemaker.amazonaws.com
+              - Effect: Allow
+                Action:
+                  - events:PutTargets
+                  - events:PutRule
+                  - events:DescribeRule
+                Resource:
+                  - arn:aws:events:*:*:rule/StepFunctionsGetEventsForSageMakerTrainingJobsRule
+                  - arn:aws:events:*:*:rule/StepFunctionsGetEventsForSageMakerTransformJobsRule
+                  - arn:aws:events:*:*:rule/StepFunctionsGetEventsForSageMakerTuningJobsRule
+                  - arn:aws:events:*:*:rule/StepFunctionsGetEventsForECSTaskRule
+                  - arn:aws:events:*:*:rule/StepFunctionsGetEventsForBatchJobsRule
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-LambdaExecutionRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-SageMakerSearch-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sagemaker:Search
+                Resource:
+                  - '*'
+Outputs:
+  SageMakerExecutionRole:
+    Value: !GetAtt SageMakerExecutionRole.Arn
+    Description: SageMakerExecutionRole
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-SageMakerExecutionRole
+  SageMakerCanvasForecastRole:
+    Value: !GetAtt SageMakerCanvasForecastRole.Arn
+    Description: SageMakerCanvasForecastRole
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-SageMakerCanvasForecastRole
+  StepFunctionsWorkflowExecutionRole:
+    Value: !GetAtt StepFunctionsWorkflowExecutionRole.Arn
+    Description: StepFunctionsWorkflowExecutionRole
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-StepFunctionsWorkflowExecutionRole
+  LambdaExecutionRole:
+    Value: !GetAtt LambdaExecutionRole.Arn
+    Description: LambdaExecutionRole
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-LambdaExecutionRole

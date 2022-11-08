@@ -26,25 +26,24 @@ Installation
         mllab-dev-vpc-private
     ```
 
-4.  Deploy a S3 stack.
+4.  Deploy stacks of SageMaker Studio.
 
     ```sh
     $ rain deploy \
         --params ProjectName=mllab-dev \
-         s3-bucket-for-sagemaker.cfn.yml \
-         mllab-dev-sagemaker-s3
-    ```
-
-5.  Deploy stacks of SageMaker Studio.
-
-    ```sh
+        s3-bucket-for-sagemaker.cfn.yml \
+        mllab-dev-sagemaker-s3-bucket
     $ rain deploy \
-        --params ProjectName=mllab-dev,VpcStackName=mllab-dev-vpc-private,S3StackName=mllab-dev-sagemaker-s3 \
+        --params ProjectName=mllab-dev,S3StackName=mllab-dev-sagemaker-s3-bucket \
+        iam-roles-for-sagemaker.cfn.yml \
+        mllab-dev-sagemaker-iam-roles
+    $ rain deploy \
+        --params ProjectName=mllab-dev,VpcStackName=mllab-dev-vpc-private,IamStackName=mllab-dev-sagemaker-iam-roles \
         sagemaker-studio-domain.cfn.yml \
         mllab-dev-sagemaker-studio-domain
     ```
 
-6.  Deploy stacks of VPC public subnets and a Nat gateway for internet access. (optional)
+5.  Deploy stacks of VPC public subnets and a Nat gateway for internet access. (optional)
 
     ```sh
     $ rain deploy \

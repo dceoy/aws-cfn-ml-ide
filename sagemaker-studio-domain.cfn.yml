@@ -10,76 +10,18 @@ Parameters:
     Description: Set the VPC stack name.
     Type: String
     Default: vpc-private-subnets-and-endpoint-for-s3
-  S3StackName:
-    Description: Set the S3 stack name.
+  IamStackName:
+    Description: Set the IAM stack name.
     Type: String
-    Default: s3-bucket-for-sagemaker
+    Default: iam-roles-for-sagemaker
 Resources:
-  SageMakerExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-SageMakerExecutionRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - sagemaker.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: /
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
-        - arn:aws:iam::aws:policy/AmazonSageMakerCanvasFullAccess
-      Policies:
-        - PolicyName: !Sub ${ProjectName}-SageMakerExecutionRole-policy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Sid: S3BucketPermission
-                Effect: Allow
-                Action:
-                  - s3:ListBucket
-                Resource:
-                  Fn::Join:
-                    - ''
-                    - - 'arn:aws:s3:::'
-                      - Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
-              - Sid: S3ObjectPermissions
-                Effect: Allow
-                Action:
-                  - s3:GetObject
-                  - s3:PutObject
-                  - s3:DeleteObject
-                Resource:
-                  Fn::Join:
-                    - ''
-                    - - 'arn:aws:s3:::'
-                      - Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
-                      - /*
-  SagemakerCanvasForecastRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub ${ProjectName}-SagemakerCanvasForecastRole
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - forecast.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: /
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonSageMakerCanvasForecastAccess
   StudioDomain:
     Type: AWS::SageMaker::Domain
     Properties:
       DomainName: !Sub ${ProjectName}-sagemaker-studio-domain
       DefaultUserSettings:
-        ExecutionRole: !GetAtt SageMakerExecutionRole.Arn
+        ExecutionRole:
+          Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-SageMakerExecutionRole
       VpcId:
         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
       SubnetIds:
@@ -94,4 +36,5 @@ Resources:
       UserProfileName: !Sub ${ProjectName}-default-user-profile
       DomainId: !GetAtt StudioDomain.DomainId
       UserSettings:
-        ExecutionRole: !GetAtt SageMakerExecutionRole.Arn
+        ExecutionRole:
+          Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-SageMakerExecutionRole

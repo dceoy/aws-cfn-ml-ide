@@ -33,11 +33,6 @@ Installation
         --params ProjectName=mllab-dev \
          s3-bucket-for-sagemaker.cfn.yml \
          mllab-dev-sagemaker-s3
-    $ curl -SL https://github.com/aws-samples/cloudformation-studio-domain/archive/refs/heads/main.tar.gz \
-        | tar zxvf -
-    $ aws s3 sync --exclude='*' --include='*.zip' \
-        ./cloudformation-studio-domain-main/  \
-        "s3://mllab-dev-sagemaker-$(aws sts get-caller-identity | jq -r .Account)/"
     ```
 
 5.  Deploy stacks of SageMaker Studio.

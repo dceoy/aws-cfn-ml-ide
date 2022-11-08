@@ -14,66 +14,11 @@ Parameters:
     Description: Set the S3 stack name.
     Type: String
     Default: s3-bucket-for-sagemaker
-  UserProfileName:
-    Description: Set user profile name.
-    Type: String
-    Default: DefaultUser
-  SageMakerRuntime:
-    Description: Set a SageMaker runtime.
-    Type: String
-    Default: python3.9
 Resources:
-  LambdaExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: /
-  LambdaExecutionPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      Path: /
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Sid: CloudWatchLogsPermissions
-            Effect: Allow
-            Action:
-              - logs:CreateLogGroup
-              - logs:CreateLogStream
-              - logs:PutLogEvents
-            Resource: !Sub arn:${AWS::Partition}:logs:*:*:*
-          - Sid: SageMakerDomainPermission
-            Effect: Allow
-            Action:
-              - sagemaker:CreateDomain
-              - sagemaker:DescribeDomain
-              - sagemaker:DeleteDomain
-              - sagemaker:UpdateDomain
-              - sagemaker:CreateUserProfile
-              - sagemaker:UpdateUserProfile
-              - sagemaker:DeleteUserProfile
-              - sagemaker:DescribeUserProfile
-            Resource:
-              - !Sub arn:${AWS::Partition}:sagemaker:*:*:domain/*
-              - !Sub arn:${AWS::Partition}:sagemaker:*:*:user-profile/*
-          - Sid: SageMakerExecPassRole
-            Effect: Allow
-            Action:
-              - iam:PassRole
-            Resource: !GetAtt SageMakerExecutionRole.Arn
-      Roles:
-        - !Ref LambdaExecutionRole
   SageMakerExecutionRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: !Sub ${ProjectName}-SageMakerExecutionRole
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -86,62 +31,67 @@ Resources:
       Path: /
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
-  StudioDomainFunction:
-    Type: AWS::Lambda::Function
-    DependsOn: LambdaExecutionPolicy
+        - arn:aws:iam::aws:policy/AmazonSageMakerCanvasFullAccess
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-SageMakerExecutionRole-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: S3BucketPermission
+                Effect: Allow
+                Action:
+                  - s3:ListBucket
+                Resource:
+                  Fn::Join:
+                    - ''
+                    - - 'arn:aws:s3:::'
+                      - Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
+              - Sid: S3ObjectPermissions
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  Fn::Join:
+                    - ''
+                    - - 'arn:aws:s3:::'
+                      - Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
+                      - /*
+  SagemakerCanvasForecastRole:
+    Type: AWS::IAM::Role
     Properties:
-      Handler: domain_function.lambda_handler
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Code:
-        S3Bucket:
-          Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
-        S3Key: domain_function.zip
-      Runtime: !Ref SageMakerRuntime
-      Timeout: 900
-      Layers:
-        - !Ref CfnResponseLayer
-  CfnResponseLayer:
-    Type: AWS::Lambda::LayerVersion
-    Properties:
-      CompatibleRuntimes:
-        - !Ref SageMakerRuntime
-      Content:
-        S3Bucket:
-          Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
-        S3Key: cfnResponse_layer.zip
-      Description: cfn_response layer
-      LayerName: !Sub ${ProjectName}-cfn-response
-  UserProfileFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Handler: UserProfile_function.lambda_handler
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Code:
-        S3Bucket:
-          Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
-        S3Key: UserProfile_function.zip
-      Runtime: !Ref SageMakerRuntime
-      Timeout: 900
-      Layers:
-        - !Ref CfnResponseLayer
+      RoleName: !Sub ${ProjectName}-SagemakerCanvasForecastRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - forecast.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonSageMakerCanvasForecastAccess
   StudioDomain:
-    Type: Custom::StudioDomain
+    Type: AWS::SageMaker::Domain
     Properties:
-      ServiceToken: !GetAtt StudioDomainFunction.Arn
-      VPC:
+      DomainName: !Sub ${ProjectName}-sagemaker-studio-domain
+      DefaultUserSettings:
+        ExecutionRole: !GetAtt SageMakerExecutionRole.Arn
+      VpcId:
         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
       SubnetIds:
         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet1
         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet2
-      DomainName: !Sub ${ProjectName}-sagemaker-studio-domain
-      DefaultUserSettings:
-        ExecutionRole: !GetAtt SageMakerExecutionRole.Arn
-  UserProfile:
-    Type: Custom::UserProfile
+      AppNetworkAccessType: PublicInternetOnly
+      AuthMode: IAM
+  DefaultUserProfile:
+    Type: AWS::SageMaker::UserProfile
     Properties:
-      ServiceToken: !GetAtt UserProfileFunction.Arn
+      UserProfileName: !Sub ${ProjectName}-default-user-profile
       DomainId: !GetAtt StudioDomain.DomainId
-      UserProfileName: !Ref UserProfileName
       UserSettings:
         ExecutionRole: !GetAtt SageMakerExecutionRole.Arn

@@ -5,7 +5,7 @@ Parameters:
   ProjectName:
     Description: Set the project name.
     Type: String
-    Default: mllab
+    Default: mlide
   VpcStackName:
     Description: Set the VPC stack name.
     Type: String

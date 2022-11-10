@@ -36,6 +36,21 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonSageMakerCanvasFullAccess
         - arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess
       Policies:
+        - PolicyName: !Sub ${ProjectName}-SageMakerPassRole-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource:
+                  - arn:aws:iam::*:role/*
+                Condition:
+                  StringEquals:
+                    iam:PassedToService:
+                      - glue.amazonaws.com
+                      - robomaker.amazonaws.com
+                      - states.amazonaws.com
         - PolicyName: !Sub ${ProjectName}-SageMakerS3Bucket-policy
           PolicyDocument:
             Version: 2012-10-17
@@ -72,7 +87,8 @@ Resources:
                 Resource:
                   - arn:aws:codebuild:*:*:project/sagemaker-studio*
               - Effect: Allow
-                Action: logs:CreateLogStream
+                Action:
+                  - logs:CreateLogStream
                 Resource:
                   - arn:aws:logs:*:*:log-group:/aws/codebuild/sagemaker-studio*
               - Effect: Allow
@@ -137,12 +153,14 @@ Resources:
                 Resource:
                   - '*'
               - Effect: Allow
-                Action: iam:PassRole
+                Action:
+                  - iam:PassRole
                 Resource:
                   - arn:aws:iam::*:role/*
                 Condition:
                   StringLikeIfExists:
-                    iam:PassedToService: codebuild.amazonaws.com
+                    iam:PassedToService:
+                      - codebuild.amazonaws.com
               - Sid: VpcAccessActions
                 Effect: Allow
                 Action:

@@ -42,7 +42,7 @@ Installation
         sagemaker-studio-domain.cfn.yml \
         mllab-dev-sagemaker-studio-domain
     $ rain deploy \
-        --params ProjectName=mllab-dev,IamStackName=mllab-dev-sagemaker-iam-roles,SageMakerStudioDomainStackName=mllab-dev-sagemaker-studio-domain \
+        --params ProjectName=mllab-dev,SageMakerStudioDomainStackName=mllab-dev-sagemaker-studio-domain \
         sagemaker-studio-user-profile.cfn.yml \
         mllab-dev-sagemaker-studio-user-profile
     ```

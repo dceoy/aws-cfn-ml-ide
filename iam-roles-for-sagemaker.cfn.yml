@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: SageMaker Studio domain
+Description: IAM roles for SageMaker Studio
 Parameters:
   ProjectName:
     Description: Set the project name.
@@ -187,6 +187,7 @@ Resources:
               - sts:AssumeRole
       Path: /
       ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaRole
         - arn:aws:iam::aws:policy/CloudWatchEventsFullAccess
       Policies:
         - PolicyName: !Sub ${ProjectName}-StepFunctionsWorkflowExecution-policy
@@ -276,22 +277,22 @@ Resources:
                   - '*'
 Outputs:
   SageMakerExecutionRole:
-    Value: !GetAtt SageMakerExecutionRole.Arn
     Description: SageMakerExecutionRole
+    Value: !GetAtt SageMakerExecutionRole.Arn
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-SageMakerExecutionRole
   SageMakerCanvasForecastRole:
-    Value: !GetAtt SageMakerCanvasForecastRole.Arn
     Description: SageMakerCanvasForecastRole
+    Value: !GetAtt SageMakerCanvasForecastRole.Arn
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-SageMakerCanvasForecastRole
   StepFunctionsWorkflowExecutionRole:
-    Value: !GetAtt StepFunctionsWorkflowExecutionRole.Arn
     Description: StepFunctionsWorkflowExecutionRole
+    Value: !GetAtt StepFunctionsWorkflowExecutionRole.Arn
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-StepFunctionsWorkflowExecutionRole
   LambdaExecutionRole:
-    Value: !GetAtt LambdaExecutionRole.Arn
     Description: LambdaExecutionRole
+    Value: !GetAtt LambdaExecutionRole.Arn
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-LambdaExecutionRole

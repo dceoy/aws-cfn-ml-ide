@@ -1,0 +1,26 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: SageMaker Studio domain
+Parameters:
+  ProjectName:
+    Description: Set the project name.
+    Type: String
+    Default: mllab
+  IamStackName:
+    Description: Set the IAM stack name.
+    Type: String
+    Default: iam-roles-for-sagemaker
+  SageMakerStudioDomainStackName:
+    Description: Set the SageMaker Studio domain stack name.
+    Type: String
+    Default: sagemaker-studio-domain
+Resources:
+  SageMakerStudioUserProfile:
+    Type: AWS::SageMaker::UserProfile
+    Properties:
+      UserProfileName: !Sub ${ProjectName}-user-profile
+      DomainId:
+        Fn::ImportValue: !Sub ${AWS::Region}-${SageMakerStudioDomainStackName}-SageMakerS3Bucket
+      UserSettings:
+        ExecutionRole:
+          Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-SageMakerExecutionRole

@@ -41,6 +41,10 @@ Installation
         --params ProjectName=mllab-dev,VpcStackName=mllab-dev-vpc-private,IamStackName=mllab-dev-sagemaker-iam-roles \
         sagemaker-studio-domain.cfn.yml \
         mllab-dev-sagemaker-studio-domain
+    $ rain deploy \
+        --params ProjectName=mllab-dev,IamStackName=mllab-dev-sagemaker-iam-roles,SageMakerStudioDomainStackName=mllab-dev-sagemaker-studio-domain \
+        sagemaker-studio-user-profile.cfn.yml \
+        mllab-dev-sagemaker-studio-user-profile
     ```
 
 5.  Deploy stacks of VPC public subnets and a Nat gateway for internet access. (optional)

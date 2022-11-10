@@ -37,6 +37,7 @@ Resources:
               NoncurrentDays: 7
 Outputs:
   SageMakerS3Bucket:
+    Description: S3 bucket for SageMaker
     Value: !Ref SageMakerS3Bucket
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-SageMakerS3Bucket

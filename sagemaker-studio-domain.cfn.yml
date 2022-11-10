@@ -15,7 +15,7 @@ Parameters:
     Type: String
     Default: iam-roles-for-sagemaker
 Resources:
-  StudioDomain:
+  SageMakerStudioDomain:
     Type: AWS::SageMaker::Domain
     Properties:
       DomainName: !Sub ${ProjectName}-sagemaker-studio-domain
@@ -30,11 +30,9 @@ Resources:
         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet2
       AppNetworkAccessType: PublicInternetOnly
       AuthMode: IAM
-  DefaultUserProfile:
-    Type: AWS::SageMaker::UserProfile
-    Properties:
-      UserProfileName: !Sub ${ProjectName}-default-user-profile
-      DomainId: !GetAtt StudioDomain.DomainId
-      UserSettings:
-        ExecutionRole:
-          Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-SageMakerExecutionRole
+Outputs:
+  SageMakerStudioDomainId:
+    Description: SageMakerStudioDomain Id
+    Value: !GetAtt SageMakerStudioDomain.DomainId
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-SageMakerStudioDomain

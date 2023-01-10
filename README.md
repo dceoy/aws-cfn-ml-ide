@@ -26,28 +26,44 @@ Installation
         mlide-dev-vpc-private
     ```
 
-4.  Deploy stacks of SageMaker Studio.
+4.  Deploy stacks of S3 and IAM for SageMaker.
 
     ```sh
     $ rain deploy \
         --params ProjectName=mlide-dev \
         s3-bucket-for-sagemaker.cfn.yml \
         mlide-dev-sagemaker-s3-bucket
-    $ rain deploy \
-        --params ProjectName=mlide-dev,S3StackName=mlide-dev-sagemaker-s3-bucket \
-        iam-roles-for-sagemaker.cfn.yml \
-        mlide-dev-sagemaker-iam-roles
-    $ rain deploy \
-        --params ProjectName=mlide-dev,VpcStackName=mlide-dev-vpc-private,IamStackName=mlide-dev-sagemaker-iam-roles \
-        sagemaker-studio-domain.cfn.yml \
-        mlide-dev-sagemaker-studio-domain
-    $ rain deploy \
-        --params ProjectName=mlide-dev,SageMakerStudioDomainStackName=mlide-dev-sagemaker-studio-domain \
-        sagemaker-studio-user-profile.cfn.yml \
-        mlide-dev-sagemaker-studio-user-profile
+      $ rain deploy \
+          --params ProjectName=mlide-dev,S3StackName=mlide-dev-sagemaker-s3-bucket \
+          iam-roles-for-sagemaker.cfn.yml \
+          mlide-dev-sagemaker-iam-roles
     ```
 
-5.  Deploy stacks of VPC public subnets and a NAT gateway for internet access. (optional)
+5.  Deploy stacks of SageMaker Studio or SageMaker Notebook.
+
+    - SageMaker Studio
+
+      ```sh
+      $ rain deploy \
+          --params ProjectName=mlide-dev,VpcStackName=mlide-dev-vpc-private,IamStackName=mlide-dev-sagemaker-iam-roles \
+          sagemaker-studio-domain.cfn.yml \
+          mlide-dev-sagemaker-studio-domain
+      $ rain deploy \
+          --params ProjectName=mlide-dev,SageMakerStudioDomainStackName=mlide-dev-sagemaker-studio-domain \
+          sagemaker-studio-user-profile.cfn.yml \
+          mlide-dev-sagemaker-studio-user-profile
+      ```
+
+    - SageMaker Notebook
+
+      ```sh
+      $ rain deploy \
+          --params ProjectName=mlide-dev,VpcStackName=mlide-dev-vpc-private,IamStackName=mlide-dev-sagemaker-iam-roles \
+          sagemaker-notebook.cfn.yml \
+          mlide-dev-sagemaker-notebook
+      ```
+
+6.  Deploy stacks of VPC public subnets and a NAT gateway for internet access. (optional)
 
     ```sh
     $ rain deploy \

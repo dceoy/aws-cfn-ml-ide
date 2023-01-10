@@ -1,0 +1,50 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: SageMaker Studio domain
+Parameters:
+  ProjectName:
+    Description: Set the project name.
+    Type: String
+    Default: mlide
+  InstanceType:
+    Description: Set a Notebook instance type.
+    Type: String
+    Default: ml.t2.medium
+    ConstraintDescription: must be a valid Notebook instance type.
+  PlatformIdentifier:
+    Description: Set the platform identifier.
+    Type: String
+    Default: notebook-al2-v2
+  VpcStackName:
+    Description: Set the VPC stack name.
+    Type: String
+    Default: vpc-private-subnets-and-endpoint-for-s3
+  IamStackName:
+    Description: Set the IAM stack name.
+    Type: String
+    Default: iam-roles-for-sagemaker
+Resources:
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:
+        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
+      GroupName: !Sub ${ProjectName}-sagemaker-notebook-security-group
+      GroupDescription: Security group for Amazon SageMaker Notebook
+  SageMakerNotebookInstance:
+    Type: AWS::SageMaker::NotebookInstance
+    Properties:
+      NotebookInstanceName: !Sub ${ProjectName}-sagemaker-notebook-instance
+      InstanceType: !Ref InstanceType
+      PlatformIdentifier: !Ref PlatformIdentifier
+      RoleArn:
+        Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-SageMakerExecutionRole
+      RootAccess: Enabled
+      SubnetId:
+        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
+      SecurityGroupIds:
+        - !Ref EC2SecurityGroup
+      DirectInternetAccess: Enabled
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-sagemaker-notebook-instance

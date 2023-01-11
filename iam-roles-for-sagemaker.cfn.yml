@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: IAM roles for SageMaker Studio
+Description: IAM roles for SageMaker
 Parameters:
   ProjectName:
     Description: Set the project name.

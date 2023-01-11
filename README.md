@@ -33,10 +33,10 @@ Installation
         --params ProjectName=mlide-dev \
         s3-bucket-for-sagemaker.cfn.yml \
         mlide-dev-sagemaker-s3-bucket
-      $ rain deploy \
-          --params ProjectName=mlide-dev,S3StackName=mlide-dev-sagemaker-s3-bucket \
-          iam-roles-for-sagemaker.cfn.yml \
-          mlide-dev-sagemaker-iam-roles
+    $ rain deploy \
+        --params ProjectName=mlide-dev,S3StackName=mlide-dev-sagemaker-s3-bucket \
+        iam-roles-for-sagemaker.cfn.yml \
+        mlide-dev-sagemaker-iam-roles
     ```
 
 5.  Deploy stacks of SageMaker Studio or SageMaker Notebook.

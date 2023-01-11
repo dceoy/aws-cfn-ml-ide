@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: S3 bucket for SageMaker Studio
+Description: S3 bucket for SageMaker
 Parameters:
   ProjectName:
     Description: Set the project name.

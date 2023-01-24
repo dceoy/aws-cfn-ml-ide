@@ -51,6 +51,40 @@ Resources:
                       - glue.amazonaws.com
                       - robomaker.amazonaws.com
                       - states.amazonaws.com
+                      - lambda.amazonaws.com
+        - PolicyName: !Sub ${ProjectName}-SageMakerLambdaFunction-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:CreateFunction
+                  - lambda:DeleteFunction
+                  - lambda:GetFunction
+                  - lambda:GetFunctionConfiguration
+                  - lambda:ListFunctions
+                  - lambda:UpdateFunctionCode
+                  - lambda:UpdateFunctionConfiguration
+                Resource: '*'
+        - PolicyName: !Sub ${ProjectName}-SageMakerCodeCommitRepositoy-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - codecommit:GitPull
+                  - codecommit:GitPush
+                  - codecommit:BatchGetRepositories
+                  - codecommit:CreateRepository
+                  - codecommit:GetRepository
+                  - codecommit:ListApprovalRuleTemplates
+                  - codecommit:ListAssociatedApprovalRuleTemplatesForRepository
+                  - codecommit:ListBranches
+                  - codecommit:ListPullRequests
+                  - codecommit:ListRepositories
+                  - codecommit:ListRepositoriesForApprovalRuleTemplate
+                  - codecommit:ListTagsForResource
+                Resource: '*'
         - PolicyName: !Sub ${ProjectName}-SageMakerS3Bucket-policy
           PolicyDocument:
             Version: 2012-10-17

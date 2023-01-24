@@ -9,7 +9,7 @@ Parameters:
   InstanceType:
     Description: Set a Notebook instance type.
     Type: String
-    Default: ml.t2.medium
+    Default: ml.t3.medium
     ConstraintDescription: must be a valid Notebook instance type.
   PlatformIdentifier:
     Description: Set the platform identifier.

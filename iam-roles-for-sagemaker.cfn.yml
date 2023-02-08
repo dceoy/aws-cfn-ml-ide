@@ -263,6 +263,7 @@ Resources:
                   - sagemaker:DeleteEndpointConfig
                   - sagemaker:DeleteEndpoint
                   - sagemaker:UpdateEndpoint
+                  - sagemaker:AddTags
                   - sagemaker:ListTags
                   - lambda:InvokeFunction
                   - sqs:SendMessage
@@ -327,6 +328,29 @@ Resources:
                   - sagemaker:Search
                 Resource:
                   - '*'
+        - PolicyName: !Sub ${ProjectName}-SageMakerS3Bucket-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                Resource:
+                  Fn::Join:
+                    - ''
+                    - - 'arn:aws:s3:::'
+                      - Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  Fn::Join:
+                    - ''
+                    - - 'arn:aws:s3:::'
+                      - Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
+                      - /*
 Outputs:
   SageMakerExecutionRole:
     Description: SageMakerExecutionRole

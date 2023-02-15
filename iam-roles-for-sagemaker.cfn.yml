@@ -248,15 +248,9 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - sagemaker:CreateTransformJob
-                  - sagemaker:DescribeTransformJob
-                  - sagemaker:StopTransformJob
-                  - sagemaker:CreateTrainingJob
-                  - sagemaker:DescribeTrainingJob
-                  - sagemaker:StopTrainingJob
-                  - sagemaker:CreateHyperParameterTuningJob
-                  - sagemaker:DescribeHyperParameterTuningJob
-                  - sagemaker:StopHyperParameterTuningJob
+                  - sagemaker:Create*Job
+                  - sagemaker:Describe*Job
+                  - sagemaker:Stop*Job
                   - sagemaker:CreateModel
                   - sagemaker:CreateEndpointConfig
                   - sagemaker:CreateEndpoint

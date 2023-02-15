@@ -1,9 +1,9 @@
-aws-cfn-ide-for-ml
-==================
+aws-cfn-ml-ide
+==============
 
 AWS CloudFormation stacks of IDE for machine learning
 
-[![Lint](https://github.com/dceoy/aws-cfn-ide-for-ml/actions/workflows/lint.yml/badge.svg)](https://github.com/dceoy/aws-cfn-ide-for-ml/actions/workflows/lint.yml)
+[![Lint](https://github.com/dceoy/aws-cfn-ml-ide/actions/workflows/lint.yml/badge.svg)](https://github.com/dceoy/aws-cfn-ml-ide/actions/workflows/lint.yml)
 
 Installation
 ------------
@@ -11,8 +11,8 @@ Installation
 1.  Check out the repository.
 
     ```sh
-    $ git clone --recurse-submodules git@github.com:dceoy/aws-cfn-ide-for-ml.git
-    $ cd aws-cfn-ide-for-ml
+    $ git clone --recurse-submodules git@github.com:dceoy/aws-cfn-ml-ide.git
+    $ cd aws-cfn-ml-ide
     ```
 
 2.  Install [Rain](https://github.com/aws-cloudformation/rain) and [AWS CLI](https://aws.amazon.com/cli/), and set `~/.aws/config` and `~/.aws/credentials`.

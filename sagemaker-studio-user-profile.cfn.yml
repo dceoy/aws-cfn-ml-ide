@@ -10,13 +10,17 @@ Parameters:
     Description: Set the SageMaker Studio domain stack name.
     Type: String
     Default: sagemaker-studio-domain
+  IamStackName:
+    Description: Set the IAM stack name.
+    Type: String
+    Default: iam-roles-for-sagemaker
 Resources:
   SageMakerStudioUserProfile:
     Type: AWS::SageMaker::UserProfile
     Properties:
       UserProfileName: !Sub ${ProjectName}-user-profile
-      # UserSettings:
-      #   ExecutionRole:
-      #     Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-SageMakerExecutionRole
+      UserSettings:
+        ExecutionRole:
+          Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-SageMakerExecutionRole
       DomainId:
         Fn::ImportValue: !Sub ${AWS::Region}-${SageMakerStudioDomainStackName}-SageMakerStudioDomain

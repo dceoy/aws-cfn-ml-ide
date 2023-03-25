@@ -22,7 +22,7 @@ Installation
     ```sh
     $ rain deploy \
         --params ProjectName=mlide-dev \
-        aws-cfn-vpc-for-slc/vpc-private-subnets-with-s3-endpoint.cfn.yml \
+        aws-cfn-vpc-for-slc/vpc-private-subnets-with-endpoints.cfn.yml \
         mlide-dev-vpc-private
     ```
 
@@ -68,6 +68,6 @@ Installation
     ```sh
     $ rain deploy \
         --params VpcStackName=mlide-dev-vpc-private,ProjectName=mlide-dev \
-        aws-cfn-vpc-for-slc/vpc-public-subnets-with-nat-gateway-in-1az.cfn.yml \
+        aws-cfn-vpc-for-slc/vpc-public-subnets-with-nat-gateway-per-az.cfn.yml \
         mlide-dev-vpc-public
     ```

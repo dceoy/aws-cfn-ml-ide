@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: SageMaker Studio domain
+Description: SageMaker Studio user profile
 Parameters:
   ProjectName:
     Description: Set the project name.

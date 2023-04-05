@@ -9,7 +9,7 @@ Parameters:
   VpcStackName:
     Description: Set the VPC stack name.
     Type: String
-    Default: vpc-private-subnets-and-endpoint-for-s3
+    Default: vpc-private-subnets-and-endpoints
   IamStackName:
     Description: Set the IAM stack name.
     Type: String

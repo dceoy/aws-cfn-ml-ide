@@ -5,7 +5,7 @@ Parameters:
   ProjectName:
     Description: Set the project name.
     Type: String
-    Default: mlide
+    Default: ml
   VpcStackName:
     Description: Set the VPC stack name.
     Type: String
@@ -23,7 +23,7 @@ Resources:
         ExecutionRole:
           Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-SageMakerExecutionRole
       VpcId:
-        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
+        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-Vpc
       SubnetIds:
         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet1

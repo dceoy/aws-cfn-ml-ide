@@ -5,7 +5,7 @@ Parameters:
   ProjectName:
     Description: Set the project name.
     Type: String
-    Default: mlide
+    Default: ml
 Resources:
   SageMakerS3Bucket:
     Type: AWS::S3::Bucket
@@ -17,7 +17,6 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
-      AccessControl: Private
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -27,14 +26,15 @@ Resources:
         Status: Enabled
       LifecycleConfiguration:
         Rules:
-          - Id: IntelligentTiering
+          - Id: Move-to-Intelligent-Tiering-after-0day
             Status: Enabled
             Transitions:
               - TransitionInDays: 0
                 StorageClass: INTELLIGENT_TIERING
-            # ExpirationInDays: 14
             NoncurrentVersionExpiration:
               NoncurrentDays: 7
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
 Outputs:
   SageMakerS3Bucket:
     Description: S3 bucket for SageMaker

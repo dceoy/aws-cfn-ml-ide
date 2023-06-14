@@ -5,7 +5,7 @@ Parameters:
   ProjectName:
     Description: Set the project name.
     Type: String
-    Default: mlide
+    Default: ml
   S3StackName:
     Description: Set the S3 stack name.
     Type: String

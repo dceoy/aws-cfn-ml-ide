@@ -21,22 +21,20 @@ Installation
 
     ```sh
     $ rain deploy \
-        --params ProjectName=mlide-dev \
+        --params ProjectName=ml-dev \
         aws-cfn-vpc-for-slc/vpc-private-subnets-with-endpoints.cfn.yml \
-        mlide-dev-vpc-private
+        ml-dev-vpc-private
     ```
 
 4.  Deploy stacks of S3 and IAM for SageMaker.
 
     ```sh
     $ rain deploy \
-        --params ProjectName=mlide-dev \
-        s3-bucket-for-sagemaker.cfn.yml \
-        mlide-dev-sagemaker-s3-bucket
+        --params ProjectName=ml-dev \
+        s3-bucket-for-sagemaker.cfn.yml ml-dev-sagemaker-s3-bucket
     $ rain deploy \
-        --params ProjectName=mlide-dev,S3StackName=mlide-dev-sagemaker-s3-bucket \
-        iam-roles-for-sagemaker.cfn.yml \
-        mlide-dev-sagemaker-iam-roles
+        --params ProjectName=ml-dev,S3StackName=ml-dev-sagemaker-s3-bucket \
+        iam-roles-for-sagemaker.cfn.yml ml-dev-sagemaker-iam-roles
     ```
 
 5.  Deploy stacks of SageMaker Studio or SageMaker Notebook.
@@ -45,29 +43,27 @@ Installation
 
       ```sh
       $ rain deploy \
-          --params ProjectName=mlide-dev,VpcStackName=mlide-dev-vpc-private,IamStackName=mlide-dev-sagemaker-iam-roles \
+          --params ProjectName=ml-dev,VpcStackName=ml-dev-vpc-private,IamStackName=ml-dev-sagemaker-iam-roles \
           sagemaker-studio-domain.cfn.yml \
-          mlide-dev-sagemaker-studio-domain
+          ml-dev-sagemaker-studio-domain
       $ rain deploy \
-          --params ProjectName=mlide-dev,SageMakerStudioDomainStackName=mlide-dev-sagemaker-studio-domain \
-          sagemaker-studio-user-profile.cfn.yml \
-          mlide-dev-sagemaker-studio-user-profile
+          --params ProjectName=ml-dev,SageMakerStudioDomainStackName=ml-dev-sagemaker-studio-domain \
+          sagemaker-studio-user-profile.cfn.yml \ ml-dev-sagemaker-studio-user-profile
       ```
 
     - SageMaker Notebook
 
       ```sh
       $ rain deploy \
-          --params ProjectName=mlide-dev,VpcStackName=mlide-dev-vpc-private,IamStackName=mlide-dev-sagemaker-iam-roles \
-          sagemaker-notebook.cfn.yml \
-          mlide-dev-sagemaker-notebook
+          --params ProjectName=ml-dev,VpcStackName=ml-dev-vpc-private,IamStackName=ml-dev-sagemaker-iam-roles \
+          sagemaker-notebook.cfn.yml \ ml-dev-sagemaker-notebook
       ```
 
 6.  Deploy stacks of VPC public subnets and a NAT gateway for internet access. (optional)
 
     ```sh
     $ rain deploy \
-        --params VpcStackName=mlide-dev-vpc-private,ProjectName=mlide-dev \
+        --params VpcStackName=ml-dev-vpc-private,ProjectName=ml-dev \
         aws-cfn-vpc-for-slc/vpc-public-subnets-with-nat-gateway-per-az.cfn.yml \
-        mlide-dev-vpc-public
+        ml-dev-vpc-public
     ```

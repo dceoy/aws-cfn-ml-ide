@@ -5,7 +5,7 @@ Parameters:
   ProjectName:
     Description: Set the project name.
     Type: String
-    Default: mlide
+    Default: ml
   InstanceType:
     Description: Set a Notebook instance type.
     Type: String
@@ -28,7 +28,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId:
-        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
+        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-Vpc
       GroupName: !Sub ${ProjectName}-sagemaker-notebook-security-group
       GroupDescription: Security group for Amazon SageMaker Notebook
   SageMakerNotebookInstance:

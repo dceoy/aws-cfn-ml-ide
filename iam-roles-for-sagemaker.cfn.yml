@@ -133,8 +133,7 @@ Resources:
                   - arn:aws:logs:*:*:log-group:/aws/codebuild/sagemaker-studio*:log-stream:*
               - Effect: Allow
                 Action: logs:CreateLogGroup
-                Resource:
-                  - '*'
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - ecr:CreateRepository
@@ -166,8 +165,7 @@ Resources:
                 Effect: Allow
                 Action:
                   - ecr:GetAuthorizationToken
-                Resource:
-                  - '*'
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - s3:GetObject
@@ -184,8 +182,7 @@ Resources:
                 Action:
                   - iam:GetRole
                   - iam:ListRoles
-                Resource:
-                  - '*'
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - iam:PassRole
@@ -206,8 +203,12 @@ Resources:
                   - ec2:DescribeSubnets
                   - ec2:DescribeSecurityGroups
                   - ec2:DescribeVpcs
-                Resource:
-                  - '*'
+                Resource: '*'
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-SageMakerExecutionRole
+        - Key: ProjectName
+          Value: !Ref ProjectName
   SageMakerCanvasForecastRole:
     Type: AWS::IAM::Role
     Properties:
@@ -224,6 +225,11 @@ Resources:
       Path: /
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonSageMakerCanvasForecastAccess
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-SageMakerCanvasForecastRole
+        - Key: ProjectName
+          Value: !Ref ProjectName
   StepFunctionsWorkflowExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -276,8 +282,7 @@ Resources:
                   - glue:GetJobRun
                   - glue:GetJobRuns
                   - glue:BatchStopJobRun
-                Resource:
-                  - '*'
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - iam:PassRole
@@ -297,6 +302,11 @@ Resources:
                   - arn:aws:events:*:*:rule/StepFunctionsGetEventsForSageMakerTuningJobsRule
                   - arn:aws:events:*:*:rule/StepFunctionsGetEventsForECSTaskRule
                   - arn:aws:events:*:*:rule/StepFunctionsGetEventsForBatchJobsRule
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-StepFunctionsWorkflowExecutionRole
+        - Key: ProjectName
+          Value: !Ref ProjectName
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -320,8 +330,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - sagemaker:Search
-                Resource:
-                  - '*'
+                Resource: '*'
         - PolicyName: !Sub ${ProjectName}-SageMakerS3Bucket-policy
           PolicyDocument:
             Version: 2012-10-17
@@ -345,6 +354,11 @@ Resources:
                     - - 'arn:aws:s3:::'
                       - Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-SageMakerS3Bucket
                       - /*
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-LambdaExecutionRole
+        - Key: ProjectName
+          Value: !Ref ProjectName
 Outputs:
   SageMakerExecutionRole:
     Description: SageMakerExecutionRole

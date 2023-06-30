@@ -18,9 +18,20 @@ Resources:
   SageMakerStudioUserProfile:
     Type: AWS::SageMaker::UserProfile
     Properties:
-      UserProfileName: !Sub ${ProjectName}-user-profile
+      UserProfileName: !Sub ${ProjectName}-sagemaker-user-profile
       UserSettings:
         ExecutionRole:
           Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-SageMakerExecutionRole
       DomainId:
         Fn::ImportValue: !Sub ${AWS::Region}-${SageMakerStudioDomainStackName}-SageMakerStudioDomain
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-sagemaker-user-profile
+        - Key: ProjectName
+          Value: !Ref ProjectName
+Outputs:
+  SageMakerStudioUserProfile:
+    Description: SageMaker Studio user profile
+    Value: !Ref SageMakerStudioUserProfile
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-SageMakerStudioUserProfile

@@ -35,6 +35,11 @@ Resources:
               NoncurrentDays: 7
             AbortIncompleteMultipartUpload:
               DaysAfterInitiation: 7
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-sagemaker-${AWS::AccountId}
+        - Key: ProjectName
+          Value: !Ref ProjectName
 Outputs:
   SageMakerS3Bucket:
     Description: S3 bucket for SageMaker

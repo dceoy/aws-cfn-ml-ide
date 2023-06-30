@@ -30,9 +30,14 @@ Resources:
         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet2
       AppNetworkAccessType: PublicInternetOnly
       AuthMode: IAM
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-sagemaker-studio-domain
+        - Key: ProjectName
+          Value: !Ref ProjectName
 Outputs:
   SageMakerStudioDomainId:
-    Description: SageMakerStudioDomain Id
+    Description: SageMaker Studio domain Id
     Value: !GetAtt SageMakerStudioDomain.DomainId
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-SageMakerStudioDomain

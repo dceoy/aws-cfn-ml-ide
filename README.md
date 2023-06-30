@@ -22,8 +22,8 @@ Installation
     ```sh
     $ rain deploy \
         --params ProjectName=ml-dev \
-        aws-cfn-vpc-for-slc/vpc-private-subnets-with-endpoints.cfn.yml \
-        ml-dev-vpc-private
+        aws-cfn-vpc-for-slc/vpc-private-subnets-with-gateway-endpoints.cfn.yml \
+        ml-dev-vpc-private-subnets-with-gateway-endpoints
     ```
 
 4.  Deploy stacks of S3 and IAM for SageMaker.
@@ -31,10 +31,10 @@ Installation
     ```sh
     $ rain deploy \
         --params ProjectName=ml-dev \
-        s3-bucket-for-sagemaker.cfn.yml ml-dev-sagemaker-s3-bucket
+        s3-bucket-for-sagemaker.cfn.yml ml-dev-s3-bucket-for-sagemaker
     $ rain deploy \
-        --params ProjectName=ml-dev,S3StackName=ml-dev-sagemaker-s3-bucket \
-        iam-roles-for-sagemaker.cfn.yml ml-dev-sagemaker-iam-roles
+        --params ProjectName=ml-dev,S3StackName=ml-dev-s3-bucket-for-sagemaker \
+        iam-roles-for-sagemaker.cfn.yml ml-dev-iam-roles-for-sagemaker
     ```
 
 5.  Deploy stacks of SageMaker Studio or SageMaker Notebook.
@@ -43,27 +43,27 @@ Installation
 
       ```sh
       $ rain deploy \
-          --params ProjectName=ml-dev,VpcStackName=ml-dev-vpc-private,IamStackName=ml-dev-sagemaker-iam-roles \
-          sagemaker-studio-domain.cfn.yml \
-          ml-dev-sagemaker-studio-domain
+          --params ProjectName=ml-dev,VpcStackName=ml-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=ml-dev-iam-roles-for-sagemaker \
+          sagemaker-studio-domain.cfn.yml ml-dev-sagemaker-studio-domain
       $ rain deploy \
-          --params ProjectName=ml-dev,SageMakerStudioDomainStackName=ml-dev-sagemaker-studio-domain \
-          sagemaker-studio-user-profile.cfn.yml \ ml-dev-sagemaker-studio-user-profile
+          --params ProjectName=ml-dev,SageMakerStudioDomainStackName=ml-dev-sagemaker-studio-domain,IamStackName=ml-dev-iam-roles-for-sagemaker \
+          sagemaker-studio-user-profile.cfn.yml \
+          ml-dev-sagemaker-studio-user-profile
       ```
 
     - SageMaker Notebook
 
       ```sh
       $ rain deploy \
-          --params ProjectName=ml-dev,VpcStackName=ml-dev-vpc-private,IamStackName=ml-dev-sagemaker-iam-roles \
-          sagemaker-notebook.cfn.yml \ ml-dev-sagemaker-notebook
+          --params ProjectName=ml-dev,VpcStackName=ml-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=ml-dev-iam-roles-for-sagemaker \
+          sagemaker-notebook.cfn.yml ml-dev-sagemaker-notebook
       ```
 
 6.  Deploy stacks of VPC public subnets and a NAT gateway for internet access. (optional)
 
     ```sh
     $ rain deploy \
-        --params VpcStackName=ml-dev-vpc-private,ProjectName=ml-dev \
+        --params VpcStackName=ml-dev-vpc-private-subnets-with-gateway-endpoints,ProjectName=ml-dev \
         aws-cfn-vpc-for-slc/vpc-public-subnets-with-nat-gateway-per-az.cfn.yml \
-        ml-dev-vpc-public
+        ml-dev-vpc-public-subnets-with-nat-gateway-per-az
     ```

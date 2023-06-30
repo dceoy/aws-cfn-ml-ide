@@ -24,13 +24,18 @@ Parameters:
     Type: String
     Default: iam-roles-for-sagemaker
 Resources:
-  EC2SecurityGroup:
+  Ec2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
+      GroupName: !Sub ${ProjectName}-sagemaker-notebook-security-group
+      GroupDescription: Security group for SageMaker Notebook
       VpcId:
         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-Vpc
-      GroupName: !Sub ${ProjectName}-sagemaker-notebook-security-group
-      GroupDescription: Security group for Amazon SageMaker Notebook
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-sagemaker-notebook-security-group
+        - Key: ProjectName
+          Value: !Ref ProjectName
   SageMakerNotebookInstance:
     Type: AWS::SageMaker::NotebookInstance
     Properties:
@@ -43,8 +48,21 @@ Resources:
       SubnetId:
         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
       SecurityGroupIds:
-        - !Ref EC2SecurityGroup
+        - !Ref Ec2SecurityGroup
       DirectInternetAccess: Enabled
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-sagemaker-notebook-instance
+        - Key: ProjectName
+          Value: !Ref ProjectName
+Outputs:
+  Ec2SecurityGroup:
+    Description: Security group for SageMaker Notebook
+    Value: !Ref Ec2SecurityGroup
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-Ec2SecurityGroup
+  SageMakerNotebookInstance:
+    Description: SageMaker Notebook instance
+    Value: !Ref SageMakerNotebookInstance
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-SageMakerNotebookInstance
